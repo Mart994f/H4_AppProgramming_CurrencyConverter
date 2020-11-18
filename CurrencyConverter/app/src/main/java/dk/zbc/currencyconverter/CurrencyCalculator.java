@@ -4,17 +4,19 @@ import java.util.ArrayList;
 
 public class CurrencyCalculator {
 
-    private ArrayList<Valuta> valutas;
+    private ArrayList<Rate> rates;
 
-    public ArrayList<Valuta> getValutas() {
-        return valutas;
+    private CurrencyDAO currencyDAO;
+
+    public ArrayList<Rate> getRates() {
+        return rates;
     }
 
-    private void setValutas(ArrayList<Valuta> valutas) {
-        this.valutas = valutas;
+    public void setRates(ArrayList<Rate> rates) {
+        this.rates = rates;
     }
 
     public CurrencyCalculator() {
-
+        currencyDAO = new FixerCurrency();
     }
 }
