@@ -13,7 +13,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 public class FixerCurrency implements CurrencyDAO {
 
@@ -21,15 +20,27 @@ public class FixerCurrency implements CurrencyDAO {
 
     private  final String apiKey = "?access_key=27941c556c105fdacbd42ae2a8811c5c";
 
-    public FixerCurrency() {
+    private  ArrayList<CurrencyDAOListener> listeners;
 
+    private ArrayList<Valuta> valutas;
+
+    public FixerCurrency() {
+        listeners = new ArrayList<>();
+    }
+
+    public void addListener(CurrencyDAOListener listener) {
+        listeners.add(listener);
+    }
+
+    public void removeListener(CurrencyDAOListener listener) {
+        listeners.remove(listener);
     }
 
     @Override
-    public List<Valuta> getValutas(Context context) {
+    public void getValutas(Context context) {
 
         String url = baseUrl + "symbols" + apiKey;
-        List<Valuta> valutas = new ArrayList<>();
+        valutas = new ArrayList<>();
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
@@ -45,38 +56,9 @@ public class FixerCurrency implements CurrencyDAO {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
-            }
-        });
 
-        Volley.newRequestQueue(context).add(jsonObjectRequest);
-
-        return valutas;
-    }
-
-    @Override
-    public List<Rate> getRates(String base, Context context) {
-
-        String url = baseUrl + "latest" + apiKey;
-        List<Rate> rates = new ArrayList<>();
-
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                try {
-                    JSONObject jsonRates = response.getJSONObject("rates");
-                    Iterator<String> rateKeys = jsonRates.keys();
-
-                    for (int i = 0; i < jsonRates.length(); i++) {
-                        String tempKey = rateKeys.next();
-                        rates.add(new Rate(tempKey, jsonRates.getDouble(tempKey)));
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                for (CurrencyDAOListener listener : listeners) {
+                    listener.returnValuta(valutas);
                 }
             }
         }, new Response.ErrorListener() {
@@ -87,7 +69,44 @@ public class FixerCurrency implements CurrencyDAO {
         });
 
         Volley.newRequestQueue(context).add(jsonObjectRequest);
+    }
 
-        return rates;
+    @Override
+    public void getRates(String base, Context context) {
+
+        String url = baseUrl + "latest" + apiKey;
+        ArrayList<Rate> rates = new ArrayList<>();
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                System.out.println("Get Rates Response!");
+                try {
+                    JSONObject jsonRates = response.getJSONObject("rates");
+                    Iterator<String> rateKeys = jsonRates.keys();
+
+                    for (int i = 0; i < jsonRates.length(); i++) {
+                        String tempKey = rateKeys.next();
+                        rates.add(new Rate(tempKey, jsonRates.getDouble(tempKey), (context.getResources().getIdentifier(tempKey.toLowerCase(), "drawable", context.getPackageName()))));
+                    }
+
+                    System.out.println("Got Rates!");
+                } catch (JSONException e) {
+                    System.out.println("Get Rates Error!");
+                    e.printStackTrace();
+                }
+
+                for (CurrencyDAOListener listener : listeners) {
+                    listener.returnRates(rates);
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+            }
+        });
+
+        Volley.newRequestQueue(context).add(jsonObjectRequest);
     }
 }

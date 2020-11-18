@@ -1,43 +1,33 @@
 package dk.zbc.currencyconverter;
 
-import android.view.View;
+import android.app.Activity;
 
 import java.util.ArrayList;
-import java.util.List;
 
-public class CurrencyPresenter {
+public class CurrencyPresenter implements CurrencyCalculatorListener{
 
-    private View view;
-    private String baseCurrency;
-    private ArrayList<Valuta> valutas;
-    private ArrayList<Rate> rates;
-    private CurrencyDAO currencyDAO;
-    private CurrencyCalculator currencyCalculator;
+    private final View view;
+    private final CurrencyCalculator currencyCalculator;
 
     public CurrencyPresenter(View view) {
         this.view = view;
         currencyCalculator = new CurrencyCalculator();
-        currencyDAO = new FixerCurrency();
+        currencyCalculator.addListener(this);
+        currencyCalculator.getValuta((Activity) this.view);
     }
 
-    public void setBaseCurrency(String baseCurrency) {
-        this.baseCurrency = baseCurrency;
-    }
-
-    public void getValutas() {
-        currencyDAO.getValutas(((android.view.View)view).getContext());
-    }
-
-    public void returnValutas(ArrayList<Valuta> valutas) {
+    @Override
+    public void setSpinnerValuta(ArrayList<Valuta> valutas) {
         view.setSpinnerContent(valutas);
     }
 
-    public void getRates() {
-        currencyDAO.getRates(baseCurrency, ((android.view.View)view).getContext());
+    @Override
+    public void setListViewRates(ArrayList<Rate> rates) {
+        view.setListViewContent(rates);
     }
 
-    public void returnRates(ArrayList<Valuta> valutas) {
-        view.setSpinnerContent(valutas);
+    public void calculateValues(Valuta valuta, double value) {
+        currencyCalculator.getRates(valuta.getName(), (Activity) view, value);
     }
 
     public interface View {

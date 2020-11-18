@@ -1,12 +1,12 @@
 package dk.zbc.currencyconverter;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
 
@@ -24,28 +24,33 @@ public class CurrencyActivity extends AppCompatActivity implements CurrencyPrese
     }
 
     public void onConvertButtonClick(View view) {
+        double value;
 
+        Valuta valuta = (Valuta) ((Spinner)findViewById(R.id.currencySpinner)).getSelectedItem();
+        String stringValue = ((EditText)findViewById(R.id.currencyInput)).getText().toString();
+
+        if (!"".equals(stringValue)) {
+            value = Double.parseDouble(stringValue);
+
+            currencyPresenter.calculateValues(valuta, value);
+        }
     }
 
     @Override
     public void setSpinnerContent(ArrayList<Valuta> valutas) {
         Spinner spinner = findViewById(R.id.currencySpinner);
 
-        ArrayAdapter<Valuta> spinnerArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, valutas);
-        spinnerArrayAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
-        spinnerArrayAdapter.setNotifyOnChange(true);
+        ValutaAdapter adapter = new ValutaAdapter(this, valutas);
 
-        spinner.setAdapter(spinnerArrayAdapter);
+        spinner.setAdapter(adapter);
     }
 
     @Override
     public void setListViewContent(ArrayList<Rate> rates) {
         ListView listView = findViewById(R.id.currencyListView);
 
-        ArrayAdapter<Rate> listViewArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, rates);
-        listViewArrayAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
-        listViewArrayAdapter.setNotifyOnChange(true);
+        RateAdapter adapter = new RateAdapter(this, rates);
 
-        listView.setAdapter(listViewArrayAdapter);
+        listView.setAdapter(adapter);
     }
 }

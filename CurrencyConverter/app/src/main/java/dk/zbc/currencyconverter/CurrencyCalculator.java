@@ -1,22 +1,56 @@
 package dk.zbc.currencyconverter;
 
+import android.content.Context;
+
 import java.util.ArrayList;
 
-public class CurrencyCalculator {
+public class CurrencyCalculator implements CurrencyDAOListener {
 
-    private ArrayList<Rate> rates;
+    private final CurrencyDAO currencyDAO;
 
-    private CurrencyDAO currencyDAO;
+    private ArrayList<CurrencyCalculatorListener> listeners;
 
-    public ArrayList<Rate> getRates() {
-        return rates;
-    }
-
-    public void setRates(ArrayList<Rate> rates) {
-        this.rates = rates;
-    }
+    private double value;
 
     public CurrencyCalculator() {
+        listeners = new ArrayList<>();
         currencyDAO = new FixerCurrency();
+        currencyDAO.addListener(this);
+    }
+
+    public void addListener(CurrencyCalculatorListener listener) {
+        listeners.add(listener);
+    }
+
+    public void removeListener(CurrencyCalculatorListener listener) {
+        listeners.remove(listener);
+    }
+
+    public void getValuta(Context context) {
+        currencyDAO.getValutas(context);
+    }
+
+    public void getRates(String baseCurrency, Context context, double value) {
+        this.value = value;
+
+        currencyDAO.getRates(baseCurrency, context);
+    }
+
+    @Override
+    public void returnValuta(ArrayList<Valuta> valutas) {
+        for (CurrencyCalculatorListener listener : listeners) {
+            listener.setSpinnerValuta(valutas);
+        }
+    }
+
+    @Override
+    public void returnRates(ArrayList<Rate> rates) {
+        for (Rate rate : rates) {
+            rate.setConvertedValue(this.value * rate.getSpotRate());
+        }
+
+        for (CurrencyCalculatorListener listener : listeners) {
+            listener.setListViewRates(rates);
+        }
     }
 }

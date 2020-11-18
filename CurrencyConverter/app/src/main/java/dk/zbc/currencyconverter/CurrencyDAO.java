@@ -2,10 +2,13 @@ package dk.zbc.currencyconverter;
 
 import android.content.Context;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public interface CurrencyDAO {
 
-    public List<Valuta> getValutas(Context context);
-    public List<Rate> getRates(String base, Context context);
+    void getValutas(Context context);
+    void getRates(String base, Context context);
+    void addListener(CurrencyDAOListener listener);
+    void removeListener(CurrencyDAOListener listener);
 }

@@ -2,28 +2,37 @@ package dk.zbc.currencyconverter;
 
 public class Rate {
 
-    private String name;
+    private final String name;
 
-    private double spotRate;
+    private final double spotRate;
+
+    private final int flagId;
+
+    private double convertedValue;
 
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public double getSpotRate() {
         return spotRate;
     }
 
-    public void setSpotRate(double spotRate) {
-        this.spotRate = spotRate;
+    public int getFlagId() {
+        return flagId;
     }
 
-    public Rate(String name, double spotRate) {
+    public double getConvertedValue() {
+        return convertedValue;
+    }
+
+    public void setConvertedValue(double convertedValue) {
+        this.convertedValue = convertedValue;
+    }
+
+    public Rate(String name, double spotRate, int flagId) {
         this.name = name;
         this.spotRate = spotRate;
+        this.flagId = flagId;
     }
 }
